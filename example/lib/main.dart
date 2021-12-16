@@ -19,7 +19,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  bool isScanning = false;
+  bool isConnected = false;
 
   FlutterOximeter oxi=FlutterOximeter();
 
@@ -29,39 +30,26 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
 
-    // _streamSubscription =
-    //     FlutterOximeter.instance.startDiscovery().listen((r) {
-    //       setState(() {
-    //         final existingIndex = results.indexWhere(
-    //                 (element) => element.device.address == r.device.address);
-    //         if (existingIndex >= 0)
-    //           results[existingIndex] = r;
-    //         else
-    //           results.add(r);
-    //       });
-    //     });
-
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await FlutterOximeter.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+    oxi.getScanningStateStream.listen((event) {
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
+      print('My Scanning State '+ event.toString());
 
-    setState(() {
-      _platformVersion = platformVersion;
+      isScanning=event;
+      setState(() {
+
+      });
+    });
+
+
+    oxi.getConnectionStateStream.listen((event) {
+      isConnected=event;
+      setState(() {
+
+      });
     });
   }
 
@@ -76,29 +64,59 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Running on: $_platformVersion\n'),
-              // StreamBuilder<Object>(
-              //   stream: oxi.detectDataStream.receiveBroadcastStream(),
-              //   builder: (context, snapshot) {
-              //     return Text('dfsdfd');
-              //   }
-              // ),
+
+              Text(isConnected? 'Connected': 'Disconnected',
+              style: TextStyle(
+                color: isConnected? Colors.green:Colors.red,
+
+              ),),
 
 
+              StreamBuilder<DeviceData>(
+                  stream: oxi.deviecFoundStream,
+                  builder: (context, snapshot) {
+                    return snapshot.data==null?
+                    const Text('No Device Found')
+                        :Column(
+                      children: [
+                        Text((snapshot.data!.deviceName??'0').toString()),
+                        Text((snapshot.data!.macAddress??'0').toString()),
+                        TextButton(onPressed: (){
+                          oxi.connect(macAddress: snapshot.data!.macAddress??'', deviceName: snapshot.data!.deviceName??'');
+                        }, child: const Text('Connect')),
+
+
+                        TextButton(onPressed: (){
+                          oxi.disConnect(
+                            macAddress: snapshot.data!.macAddress??''
+                          );
+                        }, child: const Text('DisConnect'))
+
+                      ],
+                    );
+                  }
+              ),
+              const SizedBox(height: 10,),
               StreamBuilder<OximeterData>(
                 stream: oxi.detectedDataStream,
                 builder: (context, snapshot) {
-                  return Column(
+                  return snapshot.data==null?
+                  const Text('NO Data Yet')
+                  :Column(
                     children: [
-                      Text(snapshot.data!.spo2.toString()),
-                      Text(snapshot.data!.heartRate.toString()),
-                      Text(snapshot.data!.hrv.toString()),
+                      Text((snapshot.data!.spo2??'0').toString()),
+                      Text((snapshot.data!.heartRate??'0').toString()),
+                      Text((snapshot.data!.hrv??'0').toString()),
+                      Text((snapshot.data!.perfusionIndex!.toStringAsFixed(2))),
+
 
                     ],
                   );
                 }
               ),
-              TextButton(
+              isScanning?
+              const CircularProgressIndicator()
+              :TextButton(
                 onPressed: () async{
 
                   oxi.startScanDevice();
@@ -106,13 +124,13 @@ class _MyAppState extends State<MyApp> {
                 child: Text('Start Scan'),
               ),
 
-              TextButton(
-                onPressed: () async{
-
-                  oxi.connect(macAddress: 'ff',deviceName: 'djjd');
-                },
-                child: Text('Connect'),
-              ),
+              // TextButton(
+              //   onPressed: () async{
+              //
+              //     oxi.connect(macAddress: 'FA:B6:4B:25:15:38',deviceName: 'djjd');
+              //   },
+              //   child: Text('Connect'),
+              // ),
             ],
           ),
         ),
