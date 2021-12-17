@@ -121,7 +121,7 @@ class _MyAppState extends State<MyApp> {
 
                   oxi.startScanDevice();
                 },
-                child: Text('Start Scan'),
+                child: const Text('Start Scan'),
               ),
 
               // TextButton(

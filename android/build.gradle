@@ -23,7 +23,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -42,4 +42,5 @@ dependencies {
     // implementation files('C:\\flutter\\bin\\cache\\artifacts\\engine\\android-x64\\flutter.jar')
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation files('libs/vpbluetooth_1.0.3.jar')
+    implementation "androidx.core:core-ktx:1.6.0"
 }

@@ -44,7 +44,7 @@ class FlutterOximeter {
 
 
    void startScanDevice() async{
-
+     await Permission.location.request();
      bool locationEnable=await LocationService().enableGPS();
      await FlutterBluetoothSerial.instance.requestEnable();
 
@@ -67,7 +67,7 @@ class FlutterOximeter {
      else{
        _alertToast( 'Please enable location to use this feature');
      }
-     await Permission.location.request();
+
 
   }
 
