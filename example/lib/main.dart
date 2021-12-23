@@ -1,15 +1,19 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_oximeter/flutter_oximeter.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'location_service.dart';
 
 
 void main() {
   runApp(const MyApp());
 }
+
+
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -66,10 +70,10 @@ class _MyAppState extends State<MyApp> {
             children: [
 
               Text(isConnected? 'Connected': 'Disconnected',
-              style: TextStyle(
-                color: isConnected? Colors.green:Colors.red,
+                style: TextStyle(
+                  color: isConnected? Colors.green:Colors.red,
 
-              ),),
+                ),),
 
 
               StreamBuilder<DeviceData>(
@@ -88,7 +92,7 @@ class _MyAppState extends State<MyApp> {
 
                         TextButton(onPressed: (){
                           oxi.disConnect(
-                            macAddress: snapshot.data!.macAddress??''
+                              macAddress: snapshot.data!.macAddress??''
                           );
                         }, child: const Text('DisConnect'))
 
@@ -98,28 +102,28 @@ class _MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 10,),
               StreamBuilder<OximeterData>(
-                stream: oxi.detectedDataStream,
-                builder: (context, snapshot) {
-                  return snapshot.data==null?
-                  const Text('NO Data Yet')
-                  :Column(
-                    children: [
-                      Text((snapshot.data!.spo2??'0').toString()),
-                      Text((snapshot.data!.heartRate??'0').toString()),
-                      Text((snapshot.data!.hrv??'0').toString()),
-                      Text((snapshot.data!.perfusionIndex!.toStringAsFixed(2))),
+                  stream: oxi.detectedDataStream,
+                  builder: (context, snapshot) {
+                    return snapshot.data==null?
+                    const Text('NO Data Yet')
+                        :Column(
+                      children: [
+                        Text((snapshot.data!.spo2??'0').toString()),
+                        Text((snapshot.data!.heartRate??'0').toString()),
+                        Text((snapshot.data!.hrv??'0').toString()),
+                        Text((snapshot.data!.perfusionIndex!.toStringAsFixed(2))),
 
 
-                    ],
-                  );
-                }
+                      ],
+                    );
+                  }
               ),
               isScanning?
               const CircularProgressIndicator()
-              :TextButton(
+                  :TextButton(
                 onPressed: () async{
+                  startScan();
 
-                  oxi.startScanDevice();
                 },
                 child: const Text('Start Scan'),
               ),
@@ -137,4 +141,41 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+
+
+
+  void startScan() async{
+
+    bool locationEnable=await LocationService().enableGPS();
+    await FlutterBluetoothSerial.instance.requestEnable();
+    await Permission.location.request();
+
+    if(locationEnable){
+      bool bluetoothEnable=(await FlutterBluetoothSerial.instance.isEnabled)??false;
+
+      if(bluetoothEnable){
+        if(await Permission.location.isGranted){
+          oxi.startScanDevice();
+        }
+        else{
+          alertToast(context, 'Location Permission is required to use this feature');
+        }
+
+      }
+      else{
+        alertToast(context, 'Please enable bluetooth to use this feature');
+      }
+
+    }
+    else{
+      alertToast(context, 'Please enable location to use this feature');
+    }
+  }
+
 }
+
+
+
+
+
+

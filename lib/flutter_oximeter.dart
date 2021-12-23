@@ -2,11 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_oximeter/location_service.dart';
 
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class FlutterOximeter {
   static const MethodChannel _channel = MethodChannel('flutter_oximeter');
@@ -44,31 +40,7 @@ class FlutterOximeter {
 
 
    void startScanDevice() async{
-     await Permission.location.request();
-     bool locationEnable=await LocationService().enableGPS();
-     await FlutterBluetoothSerial.instance.requestEnable();
-
-     if(locationEnable){
-       bool bluetoothEnable=(await FlutterBluetoothSerial.instance.isEnabled)??false;
-
-       if(bluetoothEnable){
-         try{
-           await _channel.invokeMethod('startScanDevice');
-         }
-         catch(e) {
-           _alertToast(e);
-         }
-       }
-       else{
-         _alertToast( 'Please enable bluetooth to use this feature');
-       }
-
-     }
-     else{
-       _alertToast( 'Please enable location to use this feature');
-     }
-
-
+     await _channel.invokeMethod('startScanDevice');
   }
 
 
@@ -77,12 +49,8 @@ class FlutterOximeter {
   required String deviceName,
 }) async{
     try{
-      if(macAddress!=''){
         await _channel.invokeMethod('connect',[macAddress,deviceName]);
-      }
-      else {
-        _alertToast('Mac Address Is Not Corerct');
-      }
+
 
     }
     catch(e) {
@@ -103,16 +71,6 @@ class FlutterOximeter {
   }
 
 
-
-  void _alertToast(msg){
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        fontSize: 16.0
-    );
-  }
 
 
 

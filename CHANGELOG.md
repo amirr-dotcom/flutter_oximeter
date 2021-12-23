@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Removed Unneccessary Dependency.
+
 ## 0.0.2
 
 * Fixed Some Bug.

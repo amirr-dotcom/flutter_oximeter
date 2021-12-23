@@ -1,6 +1,6 @@
 name: flutter_oximeter
 description: A new Flutter project.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/amirr-dotcom/flutter_oximeter
 
 environment:
@@ -11,11 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  get: ^4.6.1
-  permission_handler: ^8.3.0
-  flutter_bluetooth_serial: ^0.4.0
-  fluttertoast: ^8.0.8
-  location: ^4.3.0
+
 
 dev_dependencies:
   flutter_test:

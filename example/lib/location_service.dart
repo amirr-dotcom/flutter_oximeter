@@ -1,4 +1,6 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
 
 class LocationService{
@@ -34,4 +36,12 @@ class LocationService{
 
 
 
+}
+
+
+alertToast(context,message){
+  FocusScope.of(context).unfocus();
+  Fluttertoast.showToast(
+    msg: message,
+  );
 }
