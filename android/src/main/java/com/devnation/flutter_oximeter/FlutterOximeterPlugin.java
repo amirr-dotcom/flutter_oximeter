@@ -1,5 +1,6 @@
 package com.devnation.flutter_oximeter;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -31,6 +32,7 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 
 /**
  * FlutterOximeterPlugin
@@ -41,9 +43,10 @@ public class FlutterOximeterPlugin implements FlutterPlugin, MethodCallHandler {
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private MethodChannel channel;
+    private Context context;
 
     // private Synth synth;
-    OxiOprateManager oximeter = OxiOprateManager.getMangerInstance(App.context);
+    OxiOprateManager oximeter;
 
     private EventChannel detectDataEventChannel;
     private EventChannel.EventSink detectDataSink;
@@ -60,6 +63,8 @@ public class FlutterOximeterPlugin implements FlutterPlugin, MethodCallHandler {
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        context= flutterPluginBinding.getApplicationContext();
+        oximeter= OxiOprateManager.getMangerInstance(context);
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_oximeter");
 
         channel.setMethodCallHandler(this);
@@ -274,7 +279,7 @@ public class FlutterOximeterPlugin implements FlutterPlugin, MethodCallHandler {
 //                        });
 //
 
-                        OxiOprateManager.getMangerInstance(App.context).startListenTestData(getBleWriteResponse(), new OnACKDataListener() {
+                        oximeter.startListenTestData(getBleWriteResponse(), new OnACKDataListener() {
                             @Override
                             public void onDataChange(AckData ackData) {
 
@@ -308,7 +313,7 @@ public class FlutterOximeterPlugin implements FlutterPlugin, MethodCallHandler {
 
     private void listenDetectResult() {
 
-        OxiOprateManager.getMangerInstance(App.context).setOnDetectDataListener(detectData -> {
+        oximeter.setOnDetectDataListener(detectData -> {
 
 
             Log.i("Device DATA", detectData.toString());

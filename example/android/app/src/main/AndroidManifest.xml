@@ -2,8 +2,6 @@
     package="com.devnation.flutter_oximeter_example">
 
 
-
-
    <application
         android:label="flutter_oximeter_example"
 
