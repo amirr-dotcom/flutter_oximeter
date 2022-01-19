@@ -1,4 +1,9 @@
-## 0.0.3
+
+## 0.0.5
+
+* Background Location permission Removed.
+
+## 0.0.4
 
 * Context Issue Solved.
 
